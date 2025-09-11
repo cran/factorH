@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>factorH: functions reference</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">factorH: functions reference</h1>
+
+
+
+<div id="function-reference" class="section level2">
+<h2>Function reference</h2>
+<p>This document collects <strong>call patterns</strong> and
+<strong>options</strong> for each public function. All formulas follow
+response ~ A + B (+ C …) with <strong>numeric</strong> response and
+<strong>factor</strong> predictors.</p>
+<p><strong>srh.kway.full()</strong></p>
+<p><strong>Purpose:</strong> one-call pipeline: ANOVA on ranks +
+descriptives + post hocs + simple effects.<br />
+<strong>Syntax:</strong> srh.kway.full(y ~ A + B (+ C …), data,
+max_levels = 30)</p>
+<ul>
+<li><p>Automatically chooses the ANOVA engine:</p>
+<ul>
+<li>1 factor: srh.kway()</li>
+<li>2 factors: srh.effsize()</li>
+<li>3+ factors: srh.kway()</li>
+</ul></li>
+<li><p>Returns a list: anova, summary, posthoc_cells, posthoc_simple,
+meta.</p></li>
+<li><p>Placeholders:</p>
+<ul>
+<li><em>not applicable</em> when a component does not apply (e.g.,
+simple effects with 1 factor),</li>
+<li><em>failed…</em> when a sub-step errors out (keeps the pipeline
+alive).</li>
+</ul></li>
+</ul>
+<p>Example:</p>
+<pre><code>res &lt;- srh.kway.full(liking ~ gender + condition + age_cat, data = mimicry)
+names(res)
+res$anova[1:3]
+head(res$summary)
+names(res$posthoc_cells)
+names(res$posthoc_simple)[1:3]
+res$meta</code></pre>
+<p><strong>Notes:</strong></p>
+<ul>
+<li>Predictors are coerced to factor internally; levels must be
+2..max_levels.</li>
+<li>Missing values are removed <strong>pairwise</strong> on the
+variables in the formula.</li>
+</ul>
+<p><strong>write.srh.kway.full.tsv()</strong></p>
+<p><strong>Purpose:</strong> export the srh.kway.full() result into a
+single TSV file for fast formatting.<br />
+<strong>Syntax:</strong> write.srh.kway.full.tsv(obj, file =
+“srh_kway_full.tsv”, sep = “, na =”“, dec =”.”)</p>
+<ul>
+<li>dec = “.” or “,” controls the decimal mark.</li>
+<li>Numeric fields are written without scientific notation.</li>
+<li>Pretty-printed character tables (e.g., from post hocs) are
+normalized so that dec=“,” also affects numbers embedded in
+strings.</li>
+</ul>
+<p>Example:</p>
+<pre><code>f &lt;- tempfile(fileext = &quot;.tsv&quot;)
+write.srh.kway.full.tsv(res, file = f, dec = &quot;,&quot;)
+file.exists(f)</code></pre>
+<p><strong>srh.kway()</strong></p>
+<p><strong>Purpose:</strong> general k-way SRH-style ANOVA on ranks
+(Type II SS), tie-corrected p-values.<br />
+<strong>Syntax:</strong> srh.kway(y ~ A + B (+ C …), data, clamp0 =
+TRUE, force_factors = TRUE, …)</p>
+<ul>
+<li>Reports: Effect, Df, Sum Sq, H, Hadj (tie correction), p.chisq, k,
+n, eta2H, eps2H.</li>
+<li>eta2H and eps2H are computed from <strong>unadjusted H</strong>
+(classical SRH practice).</li>
+<li>force_factors = TRUE coerces predictors to factor
+(recommended).</li>
+</ul>
+<p>Example:</p>
+<pre><code>k3 &lt;- srh.kway(liking ~ gender + condition + age_cat, data = mimicry)
+k3</code></pre>
+<p>One-factor check (KW-like):</p>
+<pre><code>k1 &lt;- srh.kway(liking ~ condition, data = mimicry)
+k1</code></pre>
+<p><strong>srh.effsize()</strong></p>
+<p><strong>Purpose:</strong> 2-way SRH table with effect sizes from
+H.<br />
+<strong>Syntax:</strong> srh.effsize(y ~ A + B, data, clamp0 = TRUE,
+…)</p>
+<ul>
+<li>Same columns as above but tailored to 2-way SRH.</li>
+<li>clamp0 = TRUE clamps small negatives to 0 for effect sizes.</li>
+</ul>
+<p>Example:</p>
+<pre><code>e2 &lt;- srh.effsize(liking ~ gender + condition, data = mimicry)
+e2</code></pre>
+<p><strong>nonpar.datatable()</strong></p>
+<p><strong>Purpose:</strong> compact descriptive tables (APA-style),
+with <strong>global rank means</strong>, medians, quartiles, IQR.<br />
+<strong>Syntax:</strong> nonpar.datatable(y ~ A + B (+ C …), data,
+force_factors = TRUE)</p>
+<ul>
+<li>Returns rows for all <strong>main effects</strong> and all
+<strong>interaction cells</strong> (constructed internally).</li>
+<li>Rank means are computed on <strong>global ranks</strong> (all
+observations ranked together), which matches how rank-based ANOVA
+effects are formed.</li>
+</ul>
+<p>Example:</p>
+<pre><code>dt &lt;- nonpar.datatable(liking ~ gender + condition, data = mimicry)
+head(dt)</code></pre>
+<p><strong>srh.posthoc()</strong></p>
+<p><strong>Purpose:</strong> Dunn–Bonferroni <strong>pairwise comparison
+matrix</strong> for a specified effect.<br />
+<strong>Syntax:</strong> srh.posthoc(y ~ A (+ B + …), data, method =
+“bonferroni”, digits = 3, triangular = c(“lower”,“upper”,“full”),
+numeric = FALSE, force_factors = TRUE, sep = “.”)</p>
+<ul>
+<li>Builds a single grouping variable (cells) from the RHS factors and
+runs FSA::dunnTest.</li>
+<li>Returns a list of three matrices (as data.frames): Z, P.unadj,
+P.adj.</li>
+<li>triangular = “lower” (default) shows only the lower triangle;
+diagonal and upper triangle are blank.</li>
+<li>numeric = FALSE returns pretty-printed character tables; set TRUE to
+get numeric.</li>
+</ul>
+<p>Example:</p>
+<pre><code>ph &lt;- srh.posthoc(liking ~ condition, data = mimicry)</code></pre>
+<p><strong>srh.posthocs()</strong></p>
+<p><strong>Purpose:</strong> Dunn–Bonferroni <strong>pairwise matrices
+for all effects</strong> (main and interactions).<br />
+<strong>Syntax:</strong> srh.posthocs(y ~ A + B (+ C …), data, …)</p>
+<ul>
+<li>Iterates srh.posthoc over: A, B, C, A:B, A:C, B:C, A:B:C, …</li>
+<li>Returns a named list: names are “A”, “B”, “A:B”, etc.; each value is
+a P.adj matrix.</li>
+</ul>
+<p>Example:</p>
+<pre><code>phs &lt;- srh.posthocs(liking ~ gender + condition + age_cat, data = mimicry)
+names(phs)
+phs[[&quot;gender:condition&quot;]][1:5, 1:5]</code></pre>
+<p><strong>srh.simple.posthoc()</strong></p>
+<p><strong>Purpose:</strong> <strong>Simple-effects</strong> post hocs
+(pairwise comparisons <strong>within</strong> levels of conditioning
+factors).<br />
+<strong>Syntax:</strong> srh.simple.posthoc(y ~ A + B (+ C …), data,
+compare = NULL, scope = c(“within”,“global”), digits = 3)</p>
+<ul>
+<li>compare selects the target factor for pairwise comparisons (default:
+first RHS factor).</li>
+<li><strong>Scope</strong>:
+<ul>
+<li>“within” (default): Bonferroni <strong>within each by-table</strong>
+(SPSS-like).</li>
+<li>“global”: one Bonferroni across <strong>all</strong> tests from all
+by-tables combined.</li>
+</ul></li>
+<li>Returns a data.frame with conditioning columns (BY), Comparison, Z,
+P.unadj, P.adj, m.tests, adj.note. An “adjustment” attribute describes
+the correction.</li>
+</ul>
+<p>Example:</p>
+<pre><code>simp &lt;- srh.simple.posthoc(liking ~ gender + condition + age_cat, data = mimicry, compare = &quot;gender&quot;, scope = &quot;within&quot;)
+head(simp)</code></pre>
+<p><strong>srh.simple.posthocs()</strong></p>
+<p><strong>Purpose:</strong> enumerate <strong>all simple-effect
+configurations</strong> for a given design.<br />
+<strong>Syntax:</strong> srh.simple.posthocs(y ~ A + B (+ C …),
+data)</p>
+<ul>
+<li>For each target factor and each non-empty combination of the
+remaining factors as BY, runs srh.simple.posthoc(…, scope =
+“within”).</li>
+<li>Returns a named list, names like COMPARE(gender) | BY(condition x
+age_cat).</li>
+</ul>
+<p>Example:</p>
+<pre><code>sps &lt;- srh.simple.posthocs(liking ~ gender + condition + age_cat, data = mimicry)
+head(names(sps), 6)</code></pre>
+<p><strong>Formula tips and pitfalls</strong></p>
+<ul>
+<li>Do <strong>not</strong> write A:B or A*B. Use A + B (+ C …); the
+package computes all necessary interaction structures internally.</li>
+<li>Response must be <strong>numeric</strong>. For Likert data, keep it
+numeric 1..k.</li>
+<li>Predictors should be <strong>factors</strong>. If they are not, they
+will be coerced.</li>
+<li>Coerce predictors to factor explicitly if needed</li>
+</ul>
+<p>Example:</p>
+<pre><code>#coercing
+mimicry$gender &lt;- factor(mimicry$gender)
+mimicry$condition &lt;- factor(mimicry$condition)</code></pre>
+<p><strong>Performance and reproducibility</strong></p>
+<ul>
+<li>Functions use ranks and Type II sums of squares (via car::Anova
+under the hood) and Dunn tests (FSA::dunnTest).</li>
+<li>P-values apply a standard tie correction factor for ranks; effect
+sizes are derived from unadjusted H (classical SRH practice).</li>
+<li>All outputs are plain data.frames and lists, easy to save and
+post-process.</li>
+</ul>
+<p>C:8WGoPl2c1c40c845ef-reference.R</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

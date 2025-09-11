@@ -1,0 +1,10 @@
+## ---- echo=FALSE--------------------------------------------------------------
+pth <- system.file("partials/dataset.md", package = "factorH")
+stopifnot(nzchar(pth))
+txt <- readLines(pth, encoding = "UTF-8", warn = FALSE)
+# DOI type conversion
+  txt <- gsub("\\\\{1,2}doi\\{\\s*([^}]+)\\s*\\}",
+              "[DOI: \\1](https://doi.org/\\1)", txt, perl = TRUE)
+
+knitr::asis_output(paste0(paste(txt, collapse = "\n"), "\n\n"))
+

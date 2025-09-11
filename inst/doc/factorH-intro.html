@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>factorH: intro</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">factorH: intro</h1>
+
+
+
+<div id="what-this-package-does-and-why" class="section level2">
+<h2>What this package does (and why)</h2>
+<p><em>factorH</em> provides a <strong>simple, single-call
+workflow</strong> for <strong>multifactor nonparametric, rank-based
+ANOVA</strong> and publication-ready outputs:</p>
+<ul>
+<li><p>ANOVA-like table based on <code>ranks</code> (rooted in
+<strong>Kruskal-Wallis H</strong> and the 2x2
+<strong>Scheirer-Ray-Hare</strong> extension),</p></li>
+<li><p><strong>effect sizes</strong> computed directly from H</p></li>
+<li><p><strong>Dunn–Bonferroni</strong> post hoc <strong>comparison
+matrices</strong></p></li>
+<li><p><code>simple-effects</code> post hocs (pairwise comparisons
+<strong>within levels</strong> of conditioning factors),</p></li>
+<li><p>compact <strong>descriptive tables</strong> and a <strong>TSV
+writer</strong> for quick formatting in Excel or a manuscript.</p></li>
+</ul>
+<p>Why? Popular GUI stats tools do not offer a ready-made,
+<strong>user-friendly multifactor rank-based</strong> pipeline that
+mirrors standard H / SRH analyses in a way that is easy for beginners.
+factorH aims to fill that gap with <strong>clear, R-like formula
+syntax</strong> and a <code>one-command</code> report function.</p>
+<p>The package is intentionally small: most users will only ever
+need:</p>
+<ul>
+<li>srh.kway.full(…) to compute everything</li>
+<li>write.srh.kway.full.tsv(…) to export the results into a single
+tab-separated file.</li>
+</ul>
+</div>
+<div id="formula-syntax-at-a-glance" class="section level2">
+<h2>Formula syntax at a glance</h2>
+<p>All high-level functions use standard R <strong>model
+formulas</strong>:</p>
+<pre><code>response ~ factorA + factorB + factorC</code></pre>
+<p>lists <strong>main effects</strong> - Interactions are handled
+internally. You do <code>not</code> need to write A:B or A*B. The
+<code>response</code> (left of ~) must be <code>numeric</code> (e.g., a
+Likert score coded as 1..5 stored as numeric).</p>
+<p>Examples below use the included dataset mimicry.</p>
+<pre><code>library(factorH)
+data(mimicry, package = &quot;factorH&quot;)
+str(mimicry)</code></pre>
+<p>Predictors should be factors. If not, functions will coerce them.</p>
+<p><strong>What is allowed?</strong></p>
+<pre><code># One factor (KW-style):  
+  liking ~ condition
+
+# Two factors (SRH-style):  
+  liking ~ gender + condition
+
+# Three or more factors (k-way):  
+  liking ~ gender + condition + age_cat</code></pre>
+<p>You do <code>not</code> need to write gender:condition or
+gender*condition. The package will build all needed interactions
+internally when relevant.</p>
+</div>
+<div id="numeric-response-likert-note" class="section level2">
+<h2>Numeric response (Likert note)</h2>
+<p>The response must be <code>numeric</code>. For Likert-type items
+(e.g., 1 = strongly disagree … 5 = strongly agree), keep them numeric;
+rank-based tests are robust for such <code>ordinal-like</code> data.</p>
+<p>If your Likert is accidentally a <code>factor</code> or
+<code>character</code>, coerce safely:</p>
+<pre><code># if stored as character &quot;1&quot;,&quot;2&quot;,...:
+mimicry$liking &lt;- as.numeric(mimicry$liking)
+# if stored as factor with labels &quot;1&quot;,&quot;2&quot;,...:
+mimicry$liking &lt;- as.numeric(as.character(mimicry$liking))</code></pre>
+</div>
+<div id="the-one-call-pipeline" class="section level2">
+<h2>The one-call pipeline</h2>
+<p>The main function srh.kway.full() runs:</p>
+<ol style="list-style-type: decimal">
+<li>ANOVA-like table on ranks</li>
+<li>descriptive summary</li>
+<li>post hoc matrices (Dunn–Bonferroni; P.adj)</li>
+<li>simple-effects post hocs (within-family Bonferroni).</li>
+</ol>
+<p>For 2 factors:</p>
+<pre><code>res2 &lt;- srh.kway.full(liking ~ gender + condition, data = mimicry)
+names(res2)
+res2$anova
+head(res2$summary)
+names(res2$posthoc_cells)
+names(res2$posthoc_simple)[1:4]</code></pre>
+<p>For 3 factors:</p>
+<pre><code>res3 &lt;- srh.kway.full(liking ~ gender + condition + age_cat, data =
+mimicry)
+res3$anova</code></pre>
+<p><strong>Export to a tab-separated file</strong></p>
+<pre><code>f &lt;- tempfile(fileext = &quot;.tsv&quot;)
+write.srh.kway.full.tsv(res3, file = f, dec = &quot;.&quot;) # decimal dot
+file.exists(f)</code></pre>
+<p>If you need <code>comma</code> as decimal mark:</p>
+<pre><code>f2 &lt;- tempfile(fileext = &quot;.tsv&quot;)
+write.srh.kway.full.tsv(res3, file = f2, dec = &quot;,&quot;) # decimal comma
+file.exists(f2)</code></pre>
+<p>The TSV contains clearly separated sections:<br />
+## SRH: EFFECTS TABLE, ## SUMMARY STATS, ## POSTHOC CELLS, ## SIMPLE
+EFFECTS, ## META.</p>
+</div>
+<div id="what-is-in-the-example-dataset" class="section level2">
+<h2>What is in the example dataset?</h2>
+<p>mimicry is a real study on the <strong>chameleon effect
+(Trzmielewska, Duras, Juchacz &amp; Rak, 2025)</strong>: how
+<code>mimicry</code> vs other <strong>movement conditions</strong>
+affect <code>liking</code> of an interlocutor. Potential moderators
+include <code>gender</code> and <code>age</code> (with dichotomized
+age_cat, and a 3-level age_cat2). This makes it a natural playground for
+<code>multifactor</code> rank-based analyses.</p>
+<pre><code>table(mimicry\$condition)
+table(mimicry\$gender)
+table(mimicry\$age_cat)</code></pre>
+</div>
+<div id="what-the-functions-compute-high-level" class="section level2">
+<h2>What the functions compute (high level)</h2>
+<ul>
+<li><strong>srh.kway()</strong>: rank-based k-way ANOVA table using Type
+II SS on ranks; p-values are tie-corrected; H is reported with and
+without the correction factor; effect sizes from unadjusted H.</li>
+<li><strong>srh.effsize()</strong>: 2-way SRH table with effect sizes
+(eta2H, eps2H) computed from H.</li>
+<li><strong>nonpar.datatable()</strong>: compact descriptive tables with
+<strong>global ranks</strong> (means of ranks per cell), medians,
+quartiles, IQR, etc., for all main effects and interactions.</li>
+<li><strong>srh.posthocs()</strong>: Dunn–Bonferroni <strong>pairwise
+matrices</strong> (P.adj) for <strong>all effects</strong> (main and
+interactions).</li>
+<li><strong>srh.simple.posthoc() / srh.simple.posthocs()</strong>:
+<code>simple-effects</code> pairwise comparisons <strong>within
+levels</strong> of conditioning factors (SPSS-like “within” scope by
+default).</li>
+<li><strong>srh.kway.full()</strong>: orchestrates all of the
+above.</li>
+<li><strong>write.srh.kway.full.tsv()</strong>: exports everything into
+one TSV (with dot or comma decimal mark).</li>
+</ul>
+<p>That is it. For most users, the intro ends here: <strong>use
+srh.kway.full()</strong> and export with
+<strong>write.srh.kway.full.tsv()</strong>.</p>
+<p>C:8WGoPl2c1c40c845ef-intro.R</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
