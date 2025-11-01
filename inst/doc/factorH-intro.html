@@ -245,22 +245,21 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 workflow</strong> for <strong>multifactor nonparametric, rank-based
 ANOVA</strong> and publication-ready outputs:</p>
 <ul>
-<li><p>ANOVA-like table based on <code>ranks</code> (rooted in
-<strong>Kruskal-Wallis H</strong> and the 2x2
-<strong>Scheirer-Ray-Hare</strong> extension),</p></li>
-<li><p><strong>effect sizes</strong> computed directly from H</p></li>
-<li><p><strong>Dunn–Bonferroni</strong> post hoc <strong>comparison
-matrices</strong></p></li>
-<li><p><code>simple-effects</code> post hocs (pairwise comparisons
-<strong>within levels</strong> of conditioning factors),</p></li>
-<li><p>compact <strong>descriptive tables</strong> and a <strong>TSV
-writer</strong> for quick formatting in Excel or a manuscript.</p></li>
+<li><strong>ANOVA-like</strong> table based on ranks (rooted in
+Kruskal-Wallis H and the 2x2 Scheirer-Ray-Hare extension)</li>
+<li><strong>effect sizes</strong> computed directly from H</li>
+<li><strong>Dunn–Bonferroni</strong> post hoc full <strong>comparison
+matrices</strong></li>
+<li><strong>simple-effects</strong> post hocs (pairwise comparisons
+<strong>within levels</strong> of conditioning factors)</li>
+<li>compact <strong>descriptive tables</strong> and a <strong>TSV
+writer</strong> for quick formatting in Excel or a manuscript</li>
 </ul>
 <p>Why? Popular GUI stats tools do not offer a ready-made,
 <strong>user-friendly multifactor rank-based</strong> pipeline that
 mirrors standard H / SRH analyses in a way that is easy for beginners.
 factorH aims to fill that gap with <strong>clear, R-like formula
-syntax</strong> and a <code>one-command</code> report function.</p>
+syntax</strong> and a one-command report function.</p>
 <p>The package is intentionally small: most users will only ever
 need:</p>
 <ul>
@@ -274,7 +273,7 @@ tab-separated file.</li>
 <p>All high-level functions use standard R <strong>model
 formulas</strong>:</p>
 <pre><code>response ~ factorA + factorB + factorC</code></pre>
-<p>lists <strong>main effects</strong> - Interactions are handled
+<p>lists <strong>main effects</strong> - interactions are handled
 internally. You do <code>not</code> need to write A:B or A*B. The
 <code>response</code> (left of ~) must be <code>numeric</code> (e.g., a
 Likert score coded as 1..5 stored as numeric).</p>
@@ -308,6 +307,26 @@ mimicry$liking &lt;- as.numeric(mimicry$liking)
 # if stored as factor with labels &quot;1&quot;,&quot;2&quot;,...:
 mimicry$liking &lt;- as.numeric(as.character(mimicry$liking))</code></pre>
 </div>
+<div id="diagnostics-at-a-glance" class="section level2">
+<h2>Diagnostics at a glance</h2>
+<p>Most users can cover assumption checks with a single command:</p>
+<pre><code>  diag_out &lt;- plan.diagnostics(response ~ factorA + factorB (+ factorC ...), data = your_data)</code></pre>
+<p><strong>What it does:</strong></p>
+<ol style="list-style-type: decimal">
+<li>Raw normality: Shapiro–Wilk in each subgroup and interaction cell of
+the specified factors.</li>
+<li>Residual normality per cell: Shapiro–Wilk on residuals from the
+corresponding full-factorial ANOVA, tested within each cell.</li>
+<li>Homogeneity of variances: Levene/Brown–Forsythe across full-plan
+cells (median by default).</li>
+<li>Count balance: chi-square homogeneity/independence/log-linear
+independence across factors.</li>
+<li>It prints a concise overall summary (share of OK and overall status)
+and returns all detailed tables in diag_out<span class="math inline">\(results, with per-type OK percentages in
+diag_out\)</span>summary. For most workflows, this single command is
+enough to document model assumptions alongside rank-based analyses.</li>
+</ol>
+</div>
 <div id="the-one-call-pipeline" class="section level2">
 <h2>The one-call pipeline</h2>
 <p>The main function srh.kway.full() runs:</p>
@@ -325,20 +344,21 @@ head(res2$summary)
 names(res2$posthoc_cells)
 names(res2$posthoc_simple)[1:4]</code></pre>
 <p>For 3 factors:</p>
-<pre><code>res3 &lt;- srh.kway.full(liking ~ gender + condition + age_cat, data =
-mimicry)
+<pre><code>res3 &lt;- srh.kway.full(liking ~ gender + condition + age_cat, data = mimicry)
 res3$anova</code></pre>
-<p><strong>Export to a tab-separated file</strong></p>
-<pre><code>f &lt;- tempfile(fileext = &quot;.tsv&quot;)
+<p><strong>Export full result to a tab-separated file</strong></p>
+<pre><code># you can of course provide your own path to the file outside the temporary folder
+f &lt;- file.path(tempdir(), &quot;result.tsv&quot;)
 write.srh.kway.full.tsv(res3, file = f, dec = &quot;.&quot;) # decimal dot
 file.exists(f)</code></pre>
 <p>If you need <code>comma</code> as decimal mark:</p>
-<pre><code>f2 &lt;- tempfile(fileext = &quot;.tsv&quot;)
+<pre><code>f &lt;- file.path(tempdir(), &quot;result.tsv&quot;)
 write.srh.kway.full.tsv(res3, file = f2, dec = &quot;,&quot;) # decimal comma
 file.exists(f2)</code></pre>
 <p>The TSV contains clearly separated sections:<br />
 ## SRH: EFFECTS TABLE, ## SUMMARY STATS, ## POSTHOC CELLS, ## SIMPLE
-EFFECTS, ## META.</p>
+EFFECTS, ## META. and can be easily pasted into the any equivalent Excel
+or Google spreadsheets.</p>
 </div>
 <div id="what-is-in-the-example-dataset" class="section level2">
 <h2>What is in the example dataset?</h2>
@@ -349,16 +369,17 @@ affect <code>liking</code> of an interlocutor. Potential moderators
 include <code>gender</code> and <code>age</code> (with dichotomized
 age_cat, and a 3-level age_cat2). This makes it a natural playground for
 <code>multifactor</code> rank-based analyses.</p>
-<pre><code>table(mimicry\$condition)
-table(mimicry\$gender)
-table(mimicry\$age_cat)</code></pre>
+<pre><code>table(mimicry$condition)
+table(mimicry$gender)
+table(mimicry$age_cat)</code></pre>
 </div>
 <div id="what-the-functions-compute-high-level" class="section level2">
 <h2>What the functions compute (high level)</h2>
 <ul>
 <li><strong>srh.kway()</strong>: rank-based k-way ANOVA table using Type
-II SS on ranks; p-values are tie-corrected; H is reported with and
-without the correction factor; effect sizes from unadjusted H.</li>
+II SS (by default, possible switch to III SS) on ranks; p-values are
+tie-corrected; H is reported with and without the correction factor;
+effect sizes from unadjusted H.</li>
 <li><strong>srh.effsize()</strong>: 2-way SRH table with effect sizes
 (eta2H, eps2H) computed from H.</li>
 <li><strong>nonpar.datatable()</strong>: compact descriptive tables with
@@ -375,11 +396,14 @@ default).</li>
 above.</li>
 <li><strong>write.srh.kway.full.tsv()</strong>: exports everything into
 one TSV (with dot or comma decimal mark).</li>
+<li><strong>plan.diagnostics()</strong>: one-call diagnostics: raw
+normality, residuals cellwise normality, Levene (median), balance
+chi-square; prints overall summary and returns full tables.</li>
 </ul>
 <p>That is it. For most users, the intro ends here: <strong>use
 srh.kway.full()</strong> and export with
 <strong>write.srh.kway.full.tsv()</strong>.</p>
-<p>C:8WGoPl2c1c40c845ef-intro.R</p>
+<p>C:116060334b62-intro.R</p>
 </div>
 
 

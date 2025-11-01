@@ -1,8 +1,13 @@
+# factorH 0.5.0
+
+* Added an option in srh.kway to enable Type III sums of squares. srh.kway now supports Type III sums of squares (enable with type = 3).
+* Added ANOVA condition testing functions, including a single-function full pipeline to all factorial conditions plan.diagnostics()
+
 # factorH 0.4.0
 
 * Submission comment: DOI reference updated, solution posted as https://stackoverflow.com/a/79758537/7751099
 * Submission comment: misspelled words checked - they are correct, despite suggestions.
-* Submission comment: writing issues (with automatic scanning) may concern the R/write.srh.kway.full.tsv.R function, which saves the research result report. This is the main purpose of this function, but a) the user calls it and indicates where to save it; b) the function doesn't write anything on the fly to anything other than variables in memory. 
+* Submission comment: writing issues (with automatic scanning) may concern the R/write.srh.kway.full.tsv.R function, which saves the research result report. This is the main purpose of this function, but a) the user calls it and indicates where to save it; b) the function doesn't write anything on the fly to anything other than variables in memory.
 * no other updates
 
 # factorH 0.3.0
@@ -14,5 +19,4 @@
 * Misspelled words checked - they are correct, despite suggestions.
 
 # factorH 0.1.0
-
 * Initial CRAN submission.

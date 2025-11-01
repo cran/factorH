@@ -1,7 +1,7 @@
 Package: factorH
 Type: Package
 Title: Multifactor Nonparametric Rank-Based ANOVA with Post Hoc Tests
-Version: 0.4.0
+Version: 0.5.0
 Authors@R: 
     c(
       person("Tomasz", "Rak", email = "tomasz.rak@upjp2.edu.pl", role = c("aut","cre")),
@@ -20,15 +20,15 @@ Encoding: UTF-8
 RoxygenNote: 7.3.2
 Depends: R (>= 4.1)
 Imports: rcompanion, FSA, car, dplyr, stats, utils, rlang
-Suggests: testthat (>= 3.0.0), knitr, rmarkdown, haven
+Suggests: MASS, ARTool, testthat (>= 3.0.0), knitr, rmarkdown, haven
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 Contact: tomasz.rak@upjp2.edu.pl
 LazyData: true
 NeedsCompilation: no
-Packaged: 2025-09-08 06:01:43 UTC; PC
+Packaged: 2025-10-31 14:33:51 UTC; PC
 Author: Tomasz Rak [aut, cre],
   Szymon Wrzesniowski [aut]
 Maintainer: Tomasz Rak <tomasz.rak@upjp2.edu.pl>
 Repository: CRAN
-Date/Publication: 2025-09-11 06:50:02 UTC
+Date/Publication: 2025-11-01 22:10:02 UTC

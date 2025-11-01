@@ -14,20 +14,20 @@ Multifactor nonparametric analysis of variance based on ranks. Builds on the Kru
 \emph{factorH} provides a \strong{simple, single-call workflow} for \strong{multifactor
 nonparametric, rank-based ANOVA} and publication-ready outputs:
 \itemize{
-\item ANOVA-like table based on \code{ranks} (rooted in \strong{Kruskal-Wallis H} and
-the 2x2 \strong{Scheirer-Ray-Hare} extension),
+\item \strong{ANOVA-like} table based on ranks (rooted in Kruskal-Wallis H and
+the 2x2 Scheirer-Ray-Hare extension)
 \item \strong{effect sizes} computed directly from H
-\item \strong{Dunn–Bonferroni} post hoc \strong{comparison matrices}
-\item \code{simple-effects} post hocs (pairwise comparisons \strong{within levels} of
-conditioning factors),
+\item \strong{Dunn–Bonferroni} post hoc full \strong{comparison matrices}
+\item \strong{simple-effects} post hocs (pairwise comparisons \strong{within levels}
+of conditioning factors)
 \item compact \strong{descriptive tables} and a \strong{TSV writer} for quick
-formatting in Excel or a manuscript.
+formatting in Excel or a manuscript
 }
 
 Why? Popular GUI stats tools do not offer a ready-made, \strong{user-friendly
 multifactor rank-based} pipeline that mirrors standard H / SRH analyses
 in a way that is easy for beginners. factorH aims to fill that gap with
-\strong{clear, R-like formula syntax} and a \code{one-command} report function.
+\strong{clear, R-like formula syntax} and a one-command report function.
 
 The package is intentionally small: most users will only ever need:
 \itemize{
@@ -44,7 +44,7 @@ All high-level functions use standard R \strong{model formulas}:
 \if{html}{\out{<div class="sourceCode">}}\preformatted{response ~ factorA + factorB + factorC
 }\if{html}{\out{</div>}}
 
-lists \strong{main effects} - Interactions are handled internally. You do
+lists \strong{main effects} - interactions are handled internally. You do
 \code{not} need to write A:B or A*B. The \code{response} (left of ~) must be
 \code{numeric} (e.g., a Likert score coded as 1..5 stored as numeric).
 
@@ -88,6 +88,31 @@ mimicry$liking <- as.numeric(as.character(mimicry$liking))
 }\if{html}{\out{</div>}}
 }
 
+\subsection{Diagnostics at a glance}{
+
+Most users can cover assumption checks with a single command:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{  diag_out <- plan.diagnostics(response ~ factorA + factorB (+ factorC ...), data = your_data)
+}\if{html}{\out{</div>}}
+
+\strong{What it does:}
+\enumerate{
+\item Raw normality: Shapiro–Wilk in each subgroup and interaction cell of
+the specified factors.
+\item Residual normality per cell: Shapiro–Wilk on residuals from the
+corresponding full-factorial ANOVA, tested within each cell.
+\item Homogeneity of variances: Levene/Brown–Forsythe across full-plan
+cells (median by default).
+\item Count balance: chi-square homogeneity/independence/log-linear
+independence across factors.
+\item It prints a concise overall summary (share of OK and overall status)
+and returns all detailed tables in
+diag_out$\verb{results, with per-type OK percentages in diag_out}$summary.
+For most workflows, this single command is enough to document model
+assumptions alongside rank-based analyses.
+}
+}
+
 \subsection{The one-call pipeline}{
 
 The main function srh.kway.full() runs:
@@ -110,28 +135,29 @@ names(res2$posthoc_simple)[1:4]
 
 For 3 factors:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{res3 <- srh.kway.full(liking ~ gender + condition + age_cat, data =
-mimicry)
+\if{html}{\out{<div class="sourceCode">}}\preformatted{res3 <- srh.kway.full(liking ~ gender + condition + age_cat, data = mimicry)
 res3$anova
 }\if{html}{\out{</div>}}
 
-\strong{Export to a tab-separated file}
+\strong{Export full result to a tab-separated file}
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{f <- tempfile(fileext = ".tsv")
+\if{html}{\out{<div class="sourceCode">}}\preformatted{# you can of course provide your own path to the file outside the temporary folder
+f <- file.path(tempdir(), "result.tsv")
 write.srh.kway.full.tsv(res3, file = f, dec = ".") # decimal dot
 file.exists(f)
 }\if{html}{\out{</div>}}
 
 If you need \code{comma} as decimal mark:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{f2 <- tempfile(fileext = ".tsv")
+\if{html}{\out{<div class="sourceCode">}}\preformatted{f <- file.path(tempdir(), "result.tsv")
 write.srh.kway.full.tsv(res3, file = f2, dec = ",") # decimal comma
 file.exists(f2)
 }\if{html}{\out{</div>}}
 
 The TSV contains clearly separated sections:
 ## SRH: EFFECTS TABLE, ## SUMMARY STATS, ## POSTHOC CELLS, ## SIMPLE
-EFFECTS, ## META.
+EFFECTS, ## META. and can be easily pasted into the any equivalent
+Excel or Google spreadsheets.
 }
 
 \subsection{What is in the example dataset?}{
@@ -143,17 +169,18 @@ affect \code{liking} of an interlocutor. Potential moderators include
 This makes it a natural playground for \code{multifactor} rank-based
 analyses.
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{table(mimicry\$condition)
-table(mimicry\$gender)
-table(mimicry\$age_cat)
+\if{html}{\out{<div class="sourceCode">}}\preformatted{table(mimicry$condition)
+table(mimicry$gender)
+table(mimicry$age_cat)
 }\if{html}{\out{</div>}}
 }
 
 \subsection{What the functions compute (high level)}{
 \itemize{
-\item \strong{srh.kway()}: rank-based k-way ANOVA table using Type II SS on
-ranks; p-values are tie-corrected; H is reported with and without the
-correction factor; effect sizes from unadjusted H.
+\item \strong{srh.kway()}: rank-based k-way ANOVA table using Type II SS (by
+default, possible switch to III SS) on ranks; p-values are
+tie-corrected; H is reported with and without the correction factor;
+effect sizes from unadjusted H.
 \item \strong{srh.effsize()}: 2-way SRH table with effect sizes (eta2H, eps2H)
 computed from H.
 \item \strong{nonpar.datatable()}: compact descriptive tables with \strong{global
@@ -167,6 +194,9 @@ pairwise comparisons \strong{within levels} of conditioning factors
 \item \strong{srh.kway.full()}: orchestrates all of the above.
 \item \strong{write.srh.kway.full.tsv()}: exports everything into one TSV (with
 dot or comma decimal mark).
+\item \strong{plan.diagnostics()}: one-call diagnostics: raw normality, residuals
+cellwise normality, Levene (median), balance chi-square; prints
+overall summary and returns full tables.
 }
 
 That is it. For most users, the intro ends here: \strong{use srh.kway.full()}

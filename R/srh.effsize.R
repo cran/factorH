@@ -71,6 +71,8 @@ srh.effsize <- function(formula, data, clamp0 = TRUE, ...) {
   if (!"H" %in% names(tab))
     stop("SRH table lacks column 'H'. Available: ", paste(names(tab), collapse = ", "))
 
+# Please note - the test provides already corrected H values, and according to the rule, the calculation of effect strength values ​​should be based on uncorrected H values, which may result in slight differences in the effect strength compared to the srh.kway.R function!
+
   tab$eta2H <- (tab$H - tab$k + 1) / (n - tab$k)
   if (clamp0) tab$eta2H <- pmax(0, tab$eta2H)
 

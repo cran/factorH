@@ -295,14 +295,15 @@ normalized so that dec=“,” also affects numbers embedded in
 strings.</li>
 </ul>
 <p>Example:</p>
-<pre><code>f &lt;- tempfile(fileext = &quot;.tsv&quot;)
+<pre><code># you can of course provide your own path to the file outside the temporary folder
+f &lt;- file.path(tempdir(), &quot;result.tsv&quot;)
 write.srh.kway.full.tsv(res, file = f, dec = &quot;,&quot;)
 file.exists(f)</code></pre>
 <p><strong>srh.kway()</strong></p>
 <p><strong>Purpose:</strong> general k-way SRH-style ANOVA on ranks
-(Type II SS), tie-corrected p-values.<br />
-<strong>Syntax:</strong> srh.kway(y ~ A + B (+ C …), data, clamp0 =
-TRUE, force_factors = TRUE, …)</p>
+(Type II SS), tie-corrected p-values. <strong>Syntax:</strong>
+srh.kway(y ~ A + B (+ C …), data, clamp0 = TRUE, force_factors = TRUE,
+type = 2, …)</p>
 <ul>
 <li>Reports: Effect, Df, Sum Sq, H, Hadj (tie correction), p.chisq, k,
 n, eta2H, eps2H.</li>
@@ -310,6 +311,9 @@ n, eta2H, eps2H.</li>
 (classical SRH practice).</li>
 <li>force_factors = TRUE coerces predictors to factor
 (recommended).</li>
+<li>type controls sums of squares. Default type = 2 (Type II SS). Set
+type = 3 for Type III SS (internally uses sum-to-zero contrasts; no
+global options changed).</li>
 </ul>
 <p>Example:</p>
 <pre><code>k3 &lt;- srh.kway(liking ~ gender + condition + age_cat, data = mimicry)
@@ -317,6 +321,9 @@ k3</code></pre>
 <p>One-factor check (KW-like):</p>
 <pre><code>k1 &lt;- srh.kway(liking ~ condition, data = mimicry)
 k1</code></pre>
+<p>Two factor (Type III SS):</p>
+<pre><code>k3_ss3 &lt;- srh.kway(liking ~ gender + condition, data = mimicry, type = 3)
+k3_ss3</code></pre>
 <p><strong>srh.effsize()</strong></p>
 <p><strong>Purpose:</strong> 2-way SRH table with effect sizes from
 H.<br />
@@ -413,6 +420,103 @@ age_cat).</li>
 <p>Example:</p>
 <pre><code>sps &lt;- srh.simple.posthocs(liking ~ gender + condition + age_cat, data = mimicry)
 head(names(sps), 6)</code></pre>
+<p><strong>normality.datatable</strong></p>
+<p><strong>Purpose:</strong> Shapiro–Wilk normality tests for the raw
+response within each subgroup for all non-empty combinations of RHS
+factors (main effects and interaction cells). <strong>Syntax:</strong>
+normality.datatable(y ~ A + B (+ C …), data, force_factors = TRUE)</p>
+<ul>
+<li>Returns Effect, factor columns, count, W, p.shapiro (fixed-format to
+4 decimals, no scientific notation), and OK/NOT OK (p &lt; 0.05 =&gt;
+NOT OK).</li>
+</ul>
+<p>Example:</p>
+<pre><code>normality.datatable(liking ~ gender + condition + age_cat, data = mimicry)</code></pre>
+<p><strong>residuals.normality.datatable</strong></p>
+<p><strong>Purpose:</strong> Shapiro–Wilk normality tests on residuals
+from a classical ANOVA model fitted to the selected RHS factors (full
+factorial for those factors), one test per model (global residuals).
+<strong>Syntax:</strong> residuals.normality.datatable(y ~ A + B (+ C
+…), data, force_factors = TRUE)</p>
+<ul>
+<li>Returns one row per Effect (A, B, A:B, …), with count, W, p.shapiro
+(4 decimals), OK/NOT OK. Use the cellwise variant below for the strict
+per-cell assumption.</li>
+<li>We have retained this feature for the purpose of recording older
+versions of the software, but according to the newer statistical
+literature it should not be used to determine the validity of a research
+plan.</li>
+</ul>
+<p>Example:</p>
+<pre><code>residuals.normality.datatable(liking ~ gender + condition + age_cat, data = mimicry)</code></pre>
+<p><strong>residuals.cellwise.normality.datatable</strong></p>
+<p><strong>Purpose:</strong> Shapiro–Wilk tests of residuals from an
+ANOVA model fitted to the selected RHS factors (full factorial), but
+tested separately within each cell defined by those factors.
+<strong>Syntax:</strong> residuals.cellwise.normality.datatable(y ~ A +
+B (+ C …), data, force_factors = TRUE)</p>
+<ul>
+<li>This matches the classical ANOVA assumption of normal errors per
+cell. Returns rows for every cell across all Effects, with count, W,
+p.shapiro (4 decimals), OK/NOT OK.</li>
+</ul>
+<p>Example:</p>
+<pre><code>residuals.cellwise.normality.datatable(liking ~ gender + condition + age_cat, data = mimicry)</code></pre>
+<p><strong>balance.chisq.datatable</strong></p>
+<p><strong>Purpose:</strong> Count-balance diagnostics across design
+factors. <strong>Syntax:</strong> balance.chisq.datatable(y ~ A + B (+ C
+…), data, force_factors = TRUE)</p>
+<ul>
+<li>For one factor: chi-square test of homogeneity vs equal proportions.
+For two factors: chi-square test of independence on the contingency
+table. For three or more: log-linear independence model (Poisson; main
+effects only) assessed via deviance and df. Returns Effect, n, ChiSq (4
+decimals), df, p.chisq (4 decimals), OK/NOT OK (p &lt; 0.05 =&gt; NOT
+OK).<br />
+</li>
+<li>Note: The response is ignored; only RHS factors are used to build
+the tables.</li>
+</ul>
+<p>Example:</p>
+<pre><code>balance.chisq.datatable(liking ~ gender + condition + age_cat, data = mimicry)</code></pre>
+<p><strong>levene.plan.datatable</strong></p>
+<p><strong>Purpose:</strong> Levene/Brown–Forsythe test for homogeneity
+of variances across the full-plan cells (highest-order interaction of
+RHS factors). <strong>Syntax:</strong> levene.plan.datatable(y ~ A + B
+(+ C …), data, center = “median”, force_factors = TRUE)</p>
+<ul>
+<li>This is the primary variance-equality diagnostic for factorial
+ANOVA. Returns F, df.num, df.den, p (4 decimals), and OK/NOT OK (p &lt;
+0.05 =&gt; NOT OK).</li>
+</ul>
+<p>Examples:</p>
+<pre><code>levene.plan.datatable(liking ~ gender + condition + age_cat, data = mimicry)  
+levene.plan.datatable(liking ~ gender + condition, data = mimicry, center = &quot;mean&quot;)</code></pre>
+<p><strong>plan.diagnostics</strong></p>
+<p><strong>Purpose:</strong> Orchestrates all diagnostics in one call.
+<strong>Syntax:</strong> plan.diagnostics(y ~ A + B (+ C …), data,
+force_factors = TRUE)</p>
+<ul>
+<li>Runs raw normality (cellwise on the response), residuals cellwise
+normality, Levene/Brown–Forsythe for the full plan (median by default),
+and balance chi-square tests for all factor combinations.</li>
+<li>Prints a concise console summary and returns full tables in a
+list.<br />
+</li>
+<li>Console summary: prints overall share of OK and overall status (OK
+only if 100% OK).</li>
+</ul>
+<p>Returned list:</p>
+<pre><code>$summary: percent_ok, ok_count, total, overall, plus per-type percentages:  
+percent_ok_normality_raw, percent_ok_residuals_cellwise, percent_ok_balance_chisq, percent_ok_levene_full_plan.  
+$results: normality_raw, residuals_cellwise_normality, levene_full_plan, balance_chisq.  </code></pre>
+<p>Examples:</p>
+<pre><code>diag_out &lt;- plan.diagnostics(liking ~ gender + condition + age_cat, data = mimicry)  
+diag_out$results$normality_raw  
+diag_out$results$residuals_cellwise_normality  
+diag_out$results$levene_full_plan  
+diag_out$results$balance_chisq  
+diag_out$summary</code></pre>
 <p><strong>Formula tips and pitfalls</strong></p>
 <ul>
 <li>Do <strong>not</strong> write A:B or A*B. Use A + B (+ C …); the
@@ -436,7 +540,7 @@ sizes are derived from unadjusted H (classical SRH practice).</li>
 <li>All outputs are plain data.frames and lists, easy to save and
 post-process.</li>
 </ul>
-<p>C:8WGoPl2c1c40c845ef-reference.R</p>
+<p>C:116060334b62-reference.R</p>
 </div>
 
 

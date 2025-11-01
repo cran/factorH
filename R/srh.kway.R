@@ -1,11 +1,11 @@
 #' K-way SRH on ranks with tie-corrected p-values and rank-based effect sizes
 #'
 #' Generalizes the Scheirer–Ray–Hare (SRH) approach to \emph{k}-factor designs
-#' by using Type II sums of squares from a linear model on ranks, with a
-#' standard tie correction \eqn{D} applied to p-values. The function returns
-#' H, tie-corrected H (\code{Hadj}), \eqn{p}-values and rank-based effect sizes
-#' (\code{eta2H}, \code{eps2H}) for each main effect and interaction up to the
-#' full order (i.e., \code{(A + B + ...)^k}).
+#' by using sums of squares from a linear model on ranks, with a standard tie
+#' correction \eqn{D} applied to p-values. The function returns H, tie-corrected
+#' H (\code{Hadj}), \eqn{p}-values and rank-based effect sizes (\code{eta2H},
+#' \code{eps2H}) for each main effect and interaction up to the full order
+#' (i.e., \code{(A + B + ...)^k}).
 #'
 #' @param formula A formula of the form \code{y ~ A + B (+ C ...)}.
 #' @param data A \code{data.frame} with the variables in \code{formula}.
@@ -13,24 +13,29 @@
 #'   truncated to 0 and \code{eps2H} truncated to the interval \eqn{[0, 1]}.
 #' @param force_factors Logical; coerce grouping variables to \code{factor}
 #'   (default \code{TRUE}).
+#' @param type Integer; the SS type to use in \code{car::Anova}. Defaults to
+#'   \code{2} (Type II). Set \code{type = 3} for Type III (internally uses
+#'   sum-to-zero contrasts for factors in the model fit; global options are
+#'   not modified).
 #' @param ... Passed to \code{stats::lm()} if applicable.
 #'
 #' @details
-#' Ranks are computed globally on \code{y} (\code{ties.method = "average"}).
-#' Type II sums of squares are obtained from \code{car::Anova(fit, type = 2)} on
-#' the rank model \code{R ~ (A + B + ...)^k}. The tie correction is
+#' Ranks are computed globally on \code{y} with \code{ties.method = "average"}.
+#' Sums of squares are obtained from \code{car::Anova()} on the rank model
+#' \code{R ~ (A + B + ...)^k}. Tie correction:
 #' \deqn{D = 1 - \frac{\sum (t^3 - t)}{n^3 - n},}
-#' where \eqn{t} are tie block sizes and \eqn{n} is the number of complete
-#' cases. We report \code{Hadj = H / D} and \eqn{p = P(\chi^2_{df} \ge Hadj)}.
+#' where \eqn{t} are tie block sizes and \eqn{n} is the number of complete cases.
+#' We report \code{Hadj = H / D} and \eqn{p = P(\chi^2_{df} \ge Hadj)}.
 #'
 #' Rank-based effect sizes are computed from the \emph{uncorrected} \code{H}
-#' (classical SRH convention):
-#' \itemize{
-#'   \item \code{eta2H = (H - k + 1) / (n - k)}, where \code{k} is the number of
-#'     groups compared by the term (for interactions, the number of observed
-#'     combinations),
-#'   \item \code{eps2H = H * (n + 1) / (n^2 - 1)} (KW-like epsilon squared).
-#' }
+#' (classical SRH convention): \code{eta2H = (H - k + 1) / (n - k)} and
+#' \code{eps2H = H * (n + 1) / (n^2 - 1)}, where \code{k} is the number of
+#' non-empty groups compared by the term.
+#'
+#' For \code{type = 3}, the model is fitted with sum-to-zero contrasts
+#' (\code{stats::contr.sum}) for RHS factors having at least 2 levels, so that
+#' Type III tests have the standard interpretation. Global contrast options are
+#' not altered.
 #'
 #' @return A \code{data.frame} with class \code{c("srh_kway","anova","data.frame")}
 #'   containing columns: \code{Effect}, \code{Df}, \code{Sum Sq}, \code{H},
@@ -39,19 +44,25 @@
 #'   \code{getCall()}.
 #'
 #' @examples
+#' \dontrun{
 #' data(mimicry, package = "factorH")
 #' # One factor (KW-style check)
 #' srh.kway(liking ~ condition, data = mimicry)
 #'
-#' # Two factors
+#' # Two factors (Type II by default)
 #' srh.kway(liking ~ gender + condition, data = mimicry)
 #'
 #' # Three factors
 #' srh.kway(liking ~ gender + condition + age_cat, data = mimicry)
 #'
+#' # Type III SS (with sum-to-zero contrasts set locally)
+#' srh.kway(liking ~ gender + condition, data = mimicry, type = 3)
+#' }
+#'
+#' @importFrom stats complete.cases lm pchisq terms update as.formula contr.sum
+#' @seealso \code{\link[car]{Anova}}
 #' @export
-#' @importFrom stats complete.cases lm pchisq terms as.formula update
-srh.kway <- function(formula, data, clamp0 = TRUE, force_factors = TRUE, ...) {
+srh.kway <- function(formula, data, clamp0 = TRUE, force_factors = TRUE, type = 2, ...) {
   stopifnot(inherits(formula, "formula"))
   cl <- match.call()
 
@@ -84,10 +95,22 @@ srh.kway <- function(formula, data, clamp0 = TRUE, force_factors = TRUE, ...) {
 
   # ranks + linear model on ranks
   d$R <- base::rank(d[[resp]], ties.method = "average")
-  fit <- stats::lm(stats::update(rhs_full, R ~ .), data = d, ...)
 
-  # Type II SS (as in SRH workflow)
-  tab <- as.data.frame(car::Anova(fit, type = 2))
+  # For Type III, set sum-to-zero contrasts locally (only for factors with >= 2 levels)
+  contr_list <- NULL
+  if (identical(type, 3L) || identical(type, 3)) {
+    use <- facs[vapply(facs, function(nm) nlevels(d[[nm]]) > 1L, logical(1))]
+    if (length(use)) {
+      contr_list <- lapply(use, function(nm) stats::contr.sum(nlevels(d[[nm]])))
+      names(contr_list) <- use
+    }
+  }
+
+  fit <- stats::lm(stats::update(rhs_full, stats::as.formula(paste("R ~ ."))),
+                   data = d, contrasts = contr_list, ...)
+
+  # Type II/III SS (per 'type')
+  tab <- as.data.frame(car::Anova(fit, type = type))
   tab$Effect <- rownames(tab)
 
   # tie correction (D) used for Hadj and p-values
@@ -135,6 +158,7 @@ srh.kway <- function(formula, data, clamp0 = TRUE, force_factors = TRUE, ...) {
   class(tab) <- c("srh_kway", "anova", "data.frame")
   tab
 }
+
 
 #' @export
 #' @method getCall srh_kway

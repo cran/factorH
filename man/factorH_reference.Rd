@@ -70,7 +70,8 @@ so that dec=“,” also affects numbers embedded in strings.
 
 Example:
 
-\if{html}{\out{<div class="sourceCode">}}\preformatted{f <- tempfile(fileext = ".tsv")
+\if{html}{\out{<div class="sourceCode">}}\preformatted{# you can of course provide your own path to the file outside the temporary folder
+f <- file.path(tempdir(), "result.tsv")
 write.srh.kway.full.tsv(res, file = f, dec = ",")
 file.exists(f)
 }\if{html}{\out{</div>}}
@@ -78,15 +79,17 @@ file.exists(f)
 \strong{srh.kway()}
 
 \strong{Purpose:} general k-way SRH-style ANOVA on ranks (Type II SS),
-tie-corrected p-values.
-\strong{Syntax:} srh.kway(y ~ A + B (+ C …), data, clamp0 = TRUE,
-force_factors = TRUE, …)
+tie-corrected p-values. \strong{Syntax:} srh.kway(y ~ A + B (+ C …), data,
+clamp0 = TRUE, force_factors = TRUE, type = 2, …)
 \itemize{
 \item Reports: Effect, Df, Sum Sq, H, Hadj (tie correction), p.chisq, k, n,
 eta2H, eps2H.
 \item eta2H and eps2H are computed from \strong{unadjusted H} (classical SRH
 practice).
 \item force_factors = TRUE coerces predictors to factor (recommended).
+\item type controls sums of squares. Default type = 2 (Type II SS). Set type
+= 3 for Type III SS (internally uses sum-to-zero contrasts; no global
+options changed).
 }
 
 Example:
@@ -99,6 +102,12 @@ One-factor check (KW-like):
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{k1 <- srh.kway(liking ~ condition, data = mimicry)
 k1
+}\if{html}{\out{</div>}}
+
+Two factor (Type III SS):
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{k3_ss3 <- srh.kway(liking ~ gender + condition, data = mimicry, type = 3)
+k3_ss3
 }\if{html}{\out{</div>}}
 
 \strong{srh.effsize()}
@@ -217,6 +226,132 @@ Example:
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{sps <- srh.simple.posthocs(liking ~ gender + condition + age_cat, data = mimicry)
 head(names(sps), 6)
+}\if{html}{\out{</div>}}
+
+\strong{normality.datatable}
+
+\strong{Purpose:} Shapiro–Wilk normality tests for the raw response within
+each subgroup for all non-empty combinations of RHS factors (main
+effects and interaction cells). \strong{Syntax:} normality.datatable(y ~ A +
+B (+ C …), data, force_factors = TRUE)
+\itemize{
+\item Returns Effect, factor columns, count, W, p.shapiro (fixed-format to 4
+decimals, no scientific notation), and OK/NOT OK (p < 0.05 => NOT
+OK).
+}
+
+Example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{normality.datatable(liking ~ gender + condition + age_cat, data = mimicry)
+}\if{html}{\out{</div>}}
+
+\strong{residuals.normality.datatable}
+
+\strong{Purpose:} Shapiro–Wilk normality tests on residuals from a classical
+ANOVA model fitted to the selected RHS factors (full factorial for those
+factors), one test per model (global residuals). \strong{Syntax:}
+residuals.normality.datatable(y ~ A + B (+ C …), data, force_factors =
+TRUE)
+\itemize{
+\item Returns one row per Effect (A, B, A:B, …), with count, W, p.shapiro (4
+decimals), OK/NOT OK. Use the cellwise variant below for the strict
+per-cell assumption.
+\item We have retained this feature for the purpose of recording older
+versions of the software, but according to the newer statistical
+literature it should not be used to determine the validity of a
+research plan.
+}
+
+Example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{residuals.normality.datatable(liking ~ gender + condition + age_cat, data = mimicry)
+}\if{html}{\out{</div>}}
+
+\strong{residuals.cellwise.normality.datatable}
+
+\strong{Purpose:} Shapiro–Wilk tests of residuals from an ANOVA model fitted
+to the selected RHS factors (full factorial), but tested separately
+within each cell defined by those factors. \strong{Syntax:}
+residuals.cellwise.normality.datatable(y ~ A + B (+ C …), data,
+force_factors = TRUE)
+\itemize{
+\item This matches the classical ANOVA assumption of normal errors per cell.
+Returns rows for every cell across all Effects, with count, W,
+p.shapiro (4 decimals), OK/NOT OK.
+}
+
+Example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{residuals.cellwise.normality.datatable(liking ~ gender + condition + age_cat, data = mimicry)
+}\if{html}{\out{</div>}}
+
+\strong{balance.chisq.datatable}
+
+\strong{Purpose:} Count-balance diagnostics across design factors.
+\strong{Syntax:} balance.chisq.datatable(y ~ A + B (+ C …), data,
+force_factors = TRUE)
+\itemize{
+\item For one factor: chi-square test of homogeneity vs equal proportions.
+For two factors: chi-square test of independence on the contingency
+table. For three or more: log-linear independence model (Poisson; main
+effects only) assessed via deviance and df. Returns Effect, n, ChiSq
+(4 decimals), df, p.chisq (4 decimals), OK/NOT OK (p < 0.05 => NOT
+OK).
+\item Note: The response is ignored; only RHS factors are used to build the
+tables.
+}
+
+Example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{balance.chisq.datatable(liking ~ gender + condition + age_cat, data = mimicry)
+}\if{html}{\out{</div>}}
+
+\strong{levene.plan.datatable}
+
+\strong{Purpose:} Levene/Brown–Forsythe test for homogeneity of variances
+across the full-plan cells (highest-order interaction of RHS factors).
+\strong{Syntax:} levene.plan.datatable(y ~ A + B (+ C …), data, center =
+“median”, force_factors = TRUE)
+\itemize{
+\item This is the primary variance-equality diagnostic for factorial ANOVA.
+Returns F, df.num, df.den, p (4 decimals), and OK/NOT OK (p < 0.05
+=> NOT OK).
+}
+
+Examples:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{levene.plan.datatable(liking ~ gender + condition + age_cat, data = mimicry)  
+levene.plan.datatable(liking ~ gender + condition, data = mimicry, center = "mean")
+}\if{html}{\out{</div>}}
+
+\strong{plan.diagnostics}
+
+\strong{Purpose:} Orchestrates all diagnostics in one call. \strong{Syntax:}
+plan.diagnostics(y ~ A + B (+ C …), data, force_factors = TRUE)
+\itemize{
+\item Runs raw normality (cellwise on the response), residuals cellwise
+normality, Levene/Brown–Forsythe for the full plan (median by
+default), and balance chi-square tests for all factor combinations.
+\item Prints a concise console summary and returns full tables in a list.
+\item Console summary: prints overall share of OK and overall status (OK
+only if 100\% OK).
+}
+
+Returned list:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{$summary: percent_ok, ok_count, total, overall, plus per-type percentages:  
+percent_ok_normality_raw, percent_ok_residuals_cellwise, percent_ok_balance_chisq, percent_ok_levene_full_plan.  
+$results: normality_raw, residuals_cellwise_normality, levene_full_plan, balance_chisq.  
+}\if{html}{\out{</div>}}
+
+Examples:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{diag_out <- plan.diagnostics(liking ~ gender + condition + age_cat, data = mimicry)  
+diag_out$results$normality_raw  
+diag_out$results$residuals_cellwise_normality  
+diag_out$results$levene_full_plan  
+diag_out$results$balance_chisq  
+diag_out$summary
 }\if{html}{\out{</div>}}
 
 \strong{Formula tips and pitfalls}

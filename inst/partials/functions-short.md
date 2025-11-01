@@ -38,3 +38,21 @@ Simple-effects post hocs within levels of conditioning factors. compare selects 
 
 ### srh.simple.posthocs()
 Enumerate all simple-effect configurations for a design. Returns a named list like "COMPARE(gender) | BY(condition x age_cat)".
+
+### normality.datatable
+Shapiro–Wilk normality per subgroup for all factor combinations; returns W, p, OK/NOT OK.
+
+### residuals.normality.datatable
+Shapiro–Wilk on global residuals from an ANOVA fitted to the selected factors; one test per model.
+
+### residuals.cellwise.normality.datatable
+Shapiro–Wilk on model residuals within each cell (matches ANOVA per-cell error normality).
+
+### balance.chisq.datatable
+Count-balance checks: homogeneity (1 factor), independence (2 factors), log-linear independence (3+); ChiSq, df, p, OK/NOT OK.
+
+### levene.plan.datatable
+Levene/Brown–Forsythe for full-plan cells (highest-order interaction); F, df, p, OK/NOT OK.
+
+### plan.diagnostics
+One-call diagnostics: raw normality, residuals cellwise normality, Levene (median), balance chi-square; prints overall summary and returns full tables.

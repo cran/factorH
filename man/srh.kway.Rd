@@ -4,7 +4,7 @@
 \alias{srh.kway}
 \title{K-way SRH on ranks with tie-corrected p-values and rank-based effect sizes}
 \usage{
-srh.kway(formula, data, clamp0 = TRUE, force_factors = TRUE, ...)
+srh.kway(formula, data, clamp0 = TRUE, force_factors = TRUE, type = 2, ...)
 }
 \arguments{
 \item{formula}{A formula of the form \code{y ~ A + B (+ C ...)}.}
@@ -17,6 +17,11 @@ truncated to 0 and \code{eps2H} truncated to the interval \eqn{[0, 1]}.}
 \item{force_factors}{Logical; coerce grouping variables to \code{factor}
 (default \code{TRUE}).}
 
+\item{type}{Integer; the SS type to use in \code{car::Anova}. Defaults to
+\code{2} (Type II). Set \code{type = 3} for Type III (internally uses
+sum-to-zero contrasts for factors in the model fit; global options are
+not modified).}
+
 \item{...}{Passed to \code{stats::lm()} if applicable.}
 }
 \value{
@@ -28,38 +33,47 @@ The original call is attached as an attribute and can be retrieved with
 }
 \description{
 Generalizes the Scheirer–Ray–Hare (SRH) approach to \emph{k}-factor designs
-by using Type II sums of squares from a linear model on ranks, with a
-standard tie correction \eqn{D} applied to p-values. The function returns
-H, tie-corrected H (\code{Hadj}), \eqn{p}-values and rank-based effect sizes
-(\code{eta2H}, \code{eps2H}) for each main effect and interaction up to the
-full order (i.e., \code{(A + B + ...)^k}).
+by using sums of squares from a linear model on ranks, with a standard tie
+correction \eqn{D} applied to p-values. The function returns H, tie-corrected
+H (\code{Hadj}), \eqn{p}-values and rank-based effect sizes (\code{eta2H},
+\code{eps2H}) for each main effect and interaction up to the full order
+(i.e., \code{(A + B + ...)^k}).
 }
 \details{
-Ranks are computed globally on \code{y} (\code{ties.method = "average"}).
-Type II sums of squares are obtained from \code{car::Anova(fit, type = 2)} on
-the rank model \code{R ~ (A + B + ...)^k}. The tie correction is
+Ranks are computed globally on \code{y} with \code{ties.method = "average"}.
+Sums of squares are obtained from \code{car::Anova()} on the rank model
+\code{R ~ (A + B + ...)^k}. Tie correction:
 \deqn{D = 1 - \frac{\sum (t^3 - t)}{n^3 - n},}
-where \eqn{t} are tie block sizes and \eqn{n} is the number of complete
-cases. We report \code{Hadj = H / D} and \eqn{p = P(\chi^2_{df} \ge Hadj)}.
+where \eqn{t} are tie block sizes and \eqn{n} is the number of complete cases.
+We report \code{Hadj = H / D} and \eqn{p = P(\chi^2_{df} \ge Hadj)}.
 
 Rank-based effect sizes are computed from the \emph{uncorrected} \code{H}
-(classical SRH convention):
-\itemize{
-\item \code{eta2H = (H - k + 1) / (n - k)}, where \code{k} is the number of
-groups compared by the term (for interactions, the number of observed
-combinations),
-\item \code{eps2H = H * (n + 1) / (n^2 - 1)} (KW-like epsilon squared).
-}
+(classical SRH convention): \code{eta2H = (H - k + 1) / (n - k)} and
+\code{eps2H = H * (n + 1) / (n^2 - 1)}, where \code{k} is the number of
+non-empty groups compared by the term.
+
+For \code{type = 3}, the model is fitted with sum-to-zero contrasts
+(\code{stats::contr.sum}) for RHS factors having at least 2 levels, so that
+Type III tests have the standard interpretation. Global contrast options are
+not altered.
 }
 \examples{
+\dontrun{
 data(mimicry, package = "factorH")
 # One factor (KW-style check)
 srh.kway(liking ~ condition, data = mimicry)
 
-# Two factors
+# Two factors (Type II by default)
 srh.kway(liking ~ gender + condition, data = mimicry)
 
 # Three factors
 srh.kway(liking ~ gender + condition + age_cat, data = mimicry)
 
+# Type III SS (with sum-to-zero contrasts set locally)
+srh.kway(liking ~ gender + condition, data = mimicry, type = 3)
+}
+
+}
+\seealso{
+\code{\link[car]{Anova}}
 }
